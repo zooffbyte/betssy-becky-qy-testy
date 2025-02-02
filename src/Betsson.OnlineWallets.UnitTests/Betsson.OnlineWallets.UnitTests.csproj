@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Betsson.OnlineWallets\Betsson.OnlineWallets.csproj" />
     <ProjectReference Include="..\Betsson.OnlineWallets.Data\Betsson.OnlineWallets.Data.csproj" />
+    <ProjectReference Include="..\Betsson.OnlineWallets.Web\Betsson.OnlineWallets.Web.csproj" />
   </ItemGroup>
 
 </Project>
