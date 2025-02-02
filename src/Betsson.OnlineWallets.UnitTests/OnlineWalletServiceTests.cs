@@ -191,7 +191,7 @@ namespace Betsson.OnlineWallets.UnitTests
         }
 
         [Fact]
-        public async Task BankSystemDepositMinusAmount_ShouldResultInError()
+        public async Task BankingSystemDepositNegativeAmount_ShouldBePresentAsNegativeAndBeVisible()
         {
             // Arrange
             IOnlineWalletService wallet = WalletFixture();
@@ -202,27 +202,11 @@ namespace Betsson.OnlineWallets.UnitTests
             Balance newBalance = await wallet.DepositFundsAsync(deposit);
 
             // Assert
-            Assert.Equal(0, newBalance.Amount);
+            Assert.Equal(deposit.Amount, newBalance.Amount);
         }
 
-        // [Fact]
-        // public async Task BankSystemDepositMoreThanDecimalMaxAmount_ShouldResultInError()
-        // {
-        //     // Arrange
-        //     IOnlineWalletService wallet = WalletFixture();
-        //     Deposit deposit = new Deposit();
-        //     // deposit.Amount = Decimal.MaxValue + Decimal(1);
-        //     deposit.Amount = 79228162514264337593543950336;
-
-        //     // Act
-        //     Balance newBalance = await wallet.DepositFundsAsync(deposit);
-
-        //     // Assert
-        //     Assert.Equal(0, newBalance.Amount);
-        // }
-
         [Fact]
-        public async Task CustomerTryToWithdrawMinusAmount_ShouldResultInError()
+        public async Task BankingSystemWithdrawNegativeAmount_ShouldBeAddedToFundAndBeVisible()
         {
             // Arrange
             IOnlineWalletService wallet = WalletFixture();
@@ -237,7 +221,29 @@ namespace Betsson.OnlineWallets.UnitTests
             Balance newBalance = await wallet.WithdrawFundsAsync(withdrawal);
 
             // Assert
-            Assert.Equal(deposit.Amount, newBalance.Amount);
+            Assert.Equal(deposit.Amount - withdrawal.Amount, newBalance.Amount);
+        }
+
+        [Fact]
+        public async Task CustomerTryToWithdrawMoreThanAvailableAmount_ShouldResultInError()
+        {
+            // Arrange
+            IOnlineWalletService wallet = WalletFixture();
+            Deposit deposit = new Deposit();
+            deposit.Amount = 10;
+            Withdrawal withdrawal = new Withdrawal();
+            withdrawal.Amount = 33;
+
+            _ = await wallet.DepositFundsAsync(deposit);
+
+            // Act
+            Func<Task> action = async () => await wallet.WithdrawFundsAsync(withdrawal);
+            Balance currentBalance = await wallet.GetBalanceAsync();
+
+            // Assert
+            var ex = await Assert.ThrowsAsync<InsufficientBalanceException>(action);
+            Assert.Contains("Invalid withdrawal amount. There are insufficient funds.", ex.Message);
+            Assert.Equal(deposit.Amount, currentBalance.Amount);
         }
     }
 }
