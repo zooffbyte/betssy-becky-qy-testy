@@ -175,7 +175,7 @@ namespace Betsson.OnlineWallets.E2EAPITests.E2EAPITests
         {
             var depositData = new Dictionary<string, int>
             {
-                { "amount", 10 }
+                { "amount", -10 }
             };
 
             var balanceResponse = await Request.PostAsync("/onlinewallet/deposit", new() { DataObject = depositData });
@@ -235,6 +235,25 @@ namespace Betsson.OnlineWallets.E2EAPITests.E2EAPITests
             Assert.IsNotNull(balanceWithdrawalJsonResponse);
             Assert.AreEqual(400, balanceWithdrawalJsonResponse?.GetProperty("status").GetDecimal());
             Assert.AreEqual("Invalid withdrawal amount. There are insufficient funds.", balanceWithdrawalJsonResponse?.GetProperty("title").GetString());
+        }
+
+        [TestMethod]
+        public async Task CustomerDepositHugeAmount_ShouldResultInError()
+        {
+            var depositData = new Dictionary<string, string>
+            {
+                { "amount", "79228162514264337593543950336" }
+            };
+
+            var balanceResponse = await Request.PostAsync("/onlinewallet/deposit", new() { DataObject = depositData });
+            await Expect(balanceResponse).Not.ToBeOKAsync();
+
+            var balanceJsonResponse = await balanceResponse.JsonAsync();
+            Assert.IsNotNull(balanceJsonResponse);
+            Assert.AreEqual(400, balanceJsonResponse?.GetProperty("status").GetDecimal());
+            Assert.AreEqual("One or more validation errors occurred.", balanceJsonResponse?.GetProperty("title").GetString());
+            Assert.AreEqual("The depositRequest field is required.", balanceJsonResponse?.GetProperty("errors").GetProperty("depositRequest")[0].GetString());
+            Assert.AreEqual("The JSON value could not be converted to System.Decimal. Path: $.amount | LineNumber: 0 | BytePositionInLine: 41.", balanceJsonResponse?.GetProperty("errors").GetProperty("$.amount")[0].GetString());
         }
     }
 }
