@@ -101,7 +101,6 @@ namespace Betsson.OnlineWallets.UnitTests.ServiceTests
             Deposit deposit = new Deposit();
             deposit.Amount = initialAmount;
             Withdrawal withdrawal = new Withdrawal();
-            withdrawal.Amount = 7;
 
             _ = await wallet.DepositFundsAsync(deposit);
 

@@ -154,7 +154,6 @@ namespace Betsson.OnlineWallets.UnitTests.APITests
             DepositRequest depositRequest = new DepositRequest();
             depositRequest.Amount = initialAmount;
             WithdrawalRequest withdrawalRequest = new WithdrawalRequest();
-            withdrawalRequest.Amount = 7;
 
             _ = await controller.Deposit(depositRequest) as ActionResult<BalanceResponse>;
 

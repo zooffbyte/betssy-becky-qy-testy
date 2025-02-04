@@ -305,3 +305,5 @@ OpenCover/
 *.orig
 
 **/*.feature.cs
+
+**/app/build/
